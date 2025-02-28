@@ -269,8 +269,8 @@
                         return;
                     }
                     
-                    // ひらがなチェック
-                    if (!/^[\u3041-\u3096]+$/.test(reading)) {
+                    // ひらがなチェック（長音記号も許可）
+                    if (!/^[\u3041-\u3096\u30FC]+$/.test(reading)) {
                         alert('読みはひらがなで入力してください');
                         return;
                     }
@@ -292,10 +292,9 @@
                 
                 celebration.classList.remove('hidden');
                 progressBar.style.width = '100%';
-                return;
+            } else {
+                showQuestion();
             }
-            
-            showQuestion();
         }
         
         // 単語リストを更新する関数
@@ -360,8 +359,8 @@
                 return;
             }
             
-            // ひらがなチェック
-            if (!/^[\u3041-\u3096]+$/.test(reading)) {
+            // ひらがなチェック（長音記号も許可）
+            if (!/^[\u3041-\u3096\u30FC]+$/.test(reading)) {
                 alert('読みはひらがなで入力してください');
                 return;
             }
