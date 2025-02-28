@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Androidユーザー辞書クリエイター</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #4285f4;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .game-container {
+            margin-top: 20px;
+        }
+        .question-box {
+            background-color: #e8f0fe;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .answer-form {
+            margin-bottom: 30px;
+        }
+        .word-list {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .word-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            margin-left: 15px;
+        }
+        .word-item:last-child {
+            border-bottom: none;
+        }
+        .word-group-header {
+            font-weight: bold;
+            background-color: #f1f8ff;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #4285f4;
+        }
+        .hidden {
+            display: none;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        input {
+            width: 100%;
+        }
+        button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+        .next-button {
+            background-color: #34a853;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .next-button:hover {
+            background-color: #2d9249;
+        }
+        .question-tip {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .download-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .progress {
+            height: 20px;
+            background-color: #4285f4;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 8px;
+            cursor: pointer;
+        }
+        .question-counter {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .celebration {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 24px;
+            color: #4285f4;
+            animation: celebrate 1s infinite;
+        }
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .completion-message {
+            margin-top: 15px;
+            color: #34a853;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Androidユーザー辞書クリエイター</h1>
+    
+    <div class="container">
+        <p>簡単な質問に答えながら、便利なAndroidユーザー辞書を作成しましょう！</p>
+        <p>質問に答えて、あなただけのオリジナル辞書を作りましょう。完成したら「辞書をダウンロード」ボタンからdictionary.txtとして保存できます。</p>
+        
+        <div class="game-container">
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            
+            <div class="question-counter" id="questionCounter">質問 1/10</div>
+            
+            <div class="question-box" id="questionBox">
+                <h3 id="currentQuestion">よく使うメールアドレスはなんですか？</h3>
+            </div>
+            
+            <div class="answer-form">
+                <div>
+                    <label for="reading">読み（ひらがな）:</label>
+                    <input type="text" id="reading" placeholder="例: めーる">
+                </div>
+                <div>
+                    <label for="word">単語:</label>
+                    <input type="text" id="word" placeholder="例: example@gmail.com">
+                </div>
+                <button id="addWordBtn">追加する</button>
+                <p class="question-tip">ヒント: 一つの質問に複数の回答を追加できます。すべて追加したら「次の質問へ」ボタンを押してください。</p>
+                <button id="nextQuestionBtn" class="next-button">次の質問へ</button>
+            </div>
+            
+            <div class="celebration hidden" id="celebration">
+                おめでとうございます！すべての質問に答えました！🎉
+            </div>
+            
+            <h3>登録した単語リスト:</h3>
+            <div class="word-list" id="wordList">
+                <div class="word-item">まだ単語が登録されていません</div>
+            </div>
+            
+            <div class="download-section">
+                <button id="downloadBtn">辞書をダウンロード (dictionary.txt)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 質問リスト
+        const questions = [
+            "よく使うメールアドレスはなんですか？",
+            "よく行くお店や場所はどこですか？",
+            "頻繁に入力する住所はありますか？",
+            "自分の名前のフルネームは？",
+            "よく使う挨拶や定型文はありますか？",
+            "趣味や関心のあるものは何ですか？",
+            "職場や学校でよく使う専門用語はありますか？",
+            "頻繁に入力する人の名前はありますか？",
+            "よく使うウェブサイトのURLは？",
+            "よく書くフレーズや口癖はありますか？"
+        ];
+        
+        // 変数の初期化
+        let currentQuestionIndex = 0;
+        let wordList = [];
+        let isLastQuestion = false;
+        
+        // DOM要素
+        const questionBox = document.getElementById('questionBox');
+        const currentQuestion = document.getElementById('currentQuestion');
+        const readingInput = document.getElementById('reading');
+        const wordInput = document.getElementById('word');
+        const addWordBtn = document.getElementById('addWordBtn');
+        const wordListElement = document.getElementById('wordList');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const progressBar = document.getElementById('progressBar');
+        const questionCounter = document.getElementById('questionCounter');
+        const celebration = document.getElementById('celebration');
+        
+        // 質問を表示する関数
+        function showQuestion() {
+            currentQuestion.textContent = questions[currentQuestionIndex];
+            questionCounter.textContent = `質問 ${currentQuestionIndex + 1}/${questions.length}`;
+            
+            // プログレスバーの更新
+            const progress = ((currentQuestionIndex) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // 最後の質問かチェック
+            isLastQuestion = currentQuestionIndex === questions.length - 1;
+        }
+        
+        // 次の質問に進む関数
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex >= questions.length) {
+                // すべての質問が終了
+                questionBox.classList.add('hidden');
+                document.querySelector('.answer-form').innerHTML = `
+                    <div>
+                        <label for="reading">読み（ひらがな）:</label>
+                        <input type="text" id="reading" placeholder="例: めーる">
+                    </div>
+                    <div>
+                        <label for="word">単語:</label>
+                        <input type="text" id="word" placeholder="例: example@gmail.com">
+                    </div>
+                    <button id="addWordBtn">単語を追加</button>
+                    <p class="completion-message">すべての質問は終了しましたが、引き続き自由に単語を追加できます。</p>
+                `;
+                
+                // 新しいaddWordBtnに再度イベントリスナーを設定
+                document.getElementById('addWordBtn').addEventListener('click', function() {
+                    const reading = document.getElementById('reading').value.trim();
+                    const word = document.getElementById('word').value.trim();
+                    
+                    if (reading === '' || word === '') {
+                        alert('読みと単語の両方を入力してください');
+                        return;
+                    }
+                    
+                    // ひらがなチェック
+                    if (!/^[\u3041-\u3096]+$/.test(reading)) {
+                        alert('読みはひらがなで入力してください');
+                        return;
+                    }
+                    
+                    // 単語リストに追加
+                    wordList.push({ 
+                        reading, 
+                        word,
+                        questionIndex: questions.length // 質問後の自由入力用のインデックス
+                    });
+                    
+                    // 入力フィールドをクリア
+                    document.getElementById('reading').value = '';
+                    document.getElementById('word').value = '';
+                    
+                    // 単語リストを更新
+                    updateWordList();
+                });
+                
+                celebration.classList.remove('hidden');
+                progressBar.style.width = '100%';
+                return;
+            }
+            
+            showQuestion();
+        }
+        
+        // 単語リストを更新する関数
+        function updateWordList() {
+            if (wordList.length === 0) {
+                wordListElement.innerHTML = '<div class="word-item">まだ単語が登録されていません</div>';
+                return;
+            }
+            
+            wordListElement.innerHTML = '';
+            
+            // 質問ごとにグループ化する
+            const groupedWords = {};
+            wordList.forEach((item) => {
+                if (!groupedWords[item.questionIndex]) {
+                    groupedWords[item.questionIndex] = [];
+                }
+                groupedWords[item.questionIndex].push(item);
+            });
+            
+            // グループごとに表示
+            Object.keys(groupedWords).sort((a, b) => parseInt(a) - parseInt(b)).forEach(questionIndex => {
+                const items = groupedWords[questionIndex];
+                
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'word-group-header';
+                groupHeader.textContent = `質問${parseInt(questionIndex) + 1}: ${questions[questionIndex]}`;
+                wordListElement.appendChild(groupHeader);
+                
+                items.forEach((item, itemIndex) => {
+                    const wordItem = document.createElement('div');
+                    wordItem.className = 'word-item';
+                    
+                    // 単語リスト内での実際のインデックスを計算
+                    const realIndex = wordList.findIndex(w => w === item);
+                    
+                    wordItem.innerHTML = `
+                        <div>${item.reading} → ${item.word}</div>
+                        <button class="delete-btn" data-index="${realIndex}">削除</button>
+                    `;
+                    wordListElement.appendChild(wordItem);
+                });
+            });
+            
+            // 削除ボタンにイベントリスナーを追加
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    wordList.splice(index, 1);
+                    updateWordList();
+                });
+            });
+        }
+        
+        // 「追加する」ボタンのイベントリスナー
+        addWordBtn.addEventListener('click', function() {
+            const reading = readingInput.value.trim();
+            const word = wordInput.value.trim();
+            
+            if (reading === '' || word === '') {
+                alert('読みと単語の両方を入力してください');
+                return;
+            }
+            
+            // ひらがなチェック
+            if (!/^[\u3041-\u3096]+$/.test(reading)) {
+                alert('読みはひらがなで入力してください');
+                return;
+            }
+            
+            // 単語リストに追加
+            wordList.push({ 
+                reading, 
+                word,
+                questionIndex: currentQuestionIndex // どの質問に対する回答かを記録
+            });
+            
+            // 入力フィールドをクリア
+            readingInput.value = '';
+            wordInput.value = '';
+            
+            // 単語リストを更新
+            updateWordList();
+        });
+        
+        // 「次の質問へ」ボタンのイベントリスナー
+        document.getElementById('nextQuestionBtn').addEventListener('click', function() {
+            // 現在の質問に対する回答があるか確認
+            const hasAnsweredCurrentQuestion = wordList.some(item => item.questionIndex === currentQuestionIndex);
+            
+            if (!hasAnsweredCurrentQuestion) {
+                if (!confirm('この質問にはまだ回答していません。次の質問に進みますか？')) {
+                    return;
+                }
+            }
+            
+            if (!isLastQuestion) {
+                nextQuestion();
+            } else {
+                nextQuestion(); // 最後の質問の後
+            }
+        });
+        
+        // ダウンロードボタンのイベントリスナー
+        downloadBtn.addEventListener('click', function() {
+            if (wordList.length === 0) {
+                alert('まだ単語が登録されていません');
+                return;
+            }
+            
+            // テキストデータを作成
+            let textData = '';
+            wordList.forEach(item => {
+                textData += `${item.reading}\t${item.word}\tja-JP\n`;
+            });
+            
+            // BOMなしUTF-8でBlobを作成
+            const blob = new Blob([textData], { type: 'text/plain;charset=utf-8' });
+            
+            // ダウンロードリンクを作成
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'dictionary.txt';
+            
+            // リンクをクリックしてダウンロード
+            document.body.appendChild(a);
+            a.click();
+            
+            // 不要になったオブジェクトを解放
+            URL.revokeObjectURL(a.href);
+            document.body.removeChild(a);
+        });
+        
+        // 初期表示
+        showQuestion();
+        updateWordList();
+    </script>
+</body>
+</html>
